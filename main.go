@@ -1,9 +1,9 @@
 package main
 
 import (
-	"net/http"
-	"html/template"
 	"flag"
+	"fmt"
+	"net/http"
 )
 
 var addr = flag.String("addr", ":8889", "http service address")
@@ -17,16 +17,14 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", 405)
 		return
 	}
-	rootTempl := template.Must(template.ParseFiles("static/index.html"))
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	rootTempl.Execute(w, r.Host)
+	fmt.Fprintln(w, "Hello World")
 }
 
 func main() {
-
-	shutdown := make(chan bool)
 	http.HandleFunc("/", rootHandler)
-	go http.ListenAndServe(*addr, nil)
-	<-shutdown
-
+	fmt.Println("Serving from addr" + *addr)
+	err := http.ListenAndServe(*addr, nil)
+	if err != nil {
+		panic("ListenAndServe:" + err.Error())
+	}
 }
